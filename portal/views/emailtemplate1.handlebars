@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Email Template 1</title>
+
+  
+</head>
+<body style="background-color: rgb(235, 239, 237);">
+
+  <main>
+    <div class="email-container" style="margin: 5% 25% 1% 25%;background: #ffffff;">
+    <div class="email-body">
+      <div class="banner" style=" background-image: url('https://i.imgur.com/Jzhz2Jk.jpeg'); background-size: cover;background-repeat: no-repeat;background-position: center;width: 100%; height: 300px;"></div>
+      
+      <div class="email-content" style="padding: 2em 5em;overflow: hidden;">
+        
+        <p>{{emailSalutation}}</p>
+        <p>{{emailBody}}</p>
+        <a href="#" style="text-decoration: none;"><i class="fab fa-facebook-square" style="-moz-osx-font-smoothing: grayscale;-webkit-font-smoothing: antialiased;display: inline-block;font-style: normal;font-variant: normal;text-rendering: auto;line-height: 1;font-family: &quot;Font Awesome 5 Brands&quot;;"></i> Check us out on Facebook</a><br>
+        <a href="#" style="text-decoration: none;"><i class="fab fa-twitter-square" style="-moz-osx-font-smoothing: grayscale;-webkit-font-smoothing: antialiased;display: inline-block;font-style: normal;font-variant: normal;text-rendering: auto;line-height: 1;font-family: &quot;Font Awesome 5 Brands&quot;;"></i> Follow Us on Twitter</a>
+      <hr style="margin-top: 2em;background: blue;">
+      <p>Sincerely,</p>
+      <p class="sig" style="font-family: 'Dancing Script', cursive;font-size: 3.5em;margin: 0;">Geb Life</p>
+      <p><em>Clothing Brand</em>
+      </div>
+    </div>
+    <%- include('./partials/emailfooter') %>
+  </div>
+  
+  </main>
+
+  
+
+  
+  <footer style="text-align: center;margin: 0;padding: 1em;">
+    <p>unsubscribe</p>
+  </footer>
+  
+</body>
+</html>

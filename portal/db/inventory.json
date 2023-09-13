@@ -1,0 +1,7 @@
+[
+    { "id": "1", "Name": "Shirt 1", "Type": "Round", "Color": "Red", "Total": "200", "Sold": "10"},
+    { "id": "2", "Name": "Shirt 5", "Type": "Round", "Color": "Red", "Total": "200", "Sold": "10"},
+    { "id": "3", "Name": "Shirt 2", "Type": "Round", "Color": "Red", "Total": "200", "Sold": "10"},
+    { "id": "4", "Name": "Shirt 3", "Type": "Round", "Color": "Red", "Total": "200", "Sold": "120"},
+    { "id": "5", "Name": "Shirt 4", "Type": "Round", "Color": "Red", "Total": "200", "Sold": "110"}
+]

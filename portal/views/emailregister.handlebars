@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>New user account request</title>
+
+  <style>
+    body{
+        background-color: rgb(198, 94, 94) !important;
+    }
+
+  </style>
+</head>
+<body>
+     <img style="width:10px;height:10px;" src="./portal/lib/images/geb_logo.jpg" alt="Geb Life logo"> <br>
+
+    <p> Hi Admin, </p> 
+     <p>A new user account request has been submitted. Please click <a href="http://localhost:3000/approve-request/{{userId}}">here</a> to approve the request.
+    <br><br> User Details: <br>  </p>
+    <ul>
+     <li> UserId: {{userId}} </li>
+     <li> Name: {{name}}</li>
+     <li>Email: {{email}}</li>
+      <li>username: {{username}}</li>
+  </ul> 
+  
+</body>
+</html>

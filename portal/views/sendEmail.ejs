@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>GEB LIFE App</title>
+
+    <style>
+        body {
+            background: white;
+        }
+
+        ::placeholder{
+            font-size: 16px;
+        }
+
+        #warning-msg{
+            padding: 10px;
+            text-align: center;
+            color: rgb(201, 14, 14);
+            font-size: 12px;
+            max-width: 400px;
+            border-radius: 1.5px;
+        }
+
+        .main-label{
+            margin-right: 11px !important;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        /* label{
+            margin-right: 10px !important;
+        } */
+
+        .radio-options{
+            display: flex;
+            justify-content: space-evenly;
+            flex-direction: row;
+            align-items: center;
+            column-gap: 20px;
+        }
+
+        select#templates {
+            padding: 0 50px !important;
+            border-radius: 5px !important;
+            background-color: black;
+            color: #FFFF !important;
+        }
+
+        .option{
+            font-size: 16px !important;
+        }
+
+      
+    </style>
+  </head>
+  <body>
+
+    <%- include('./partials/header') %>
+
+      <div class="container">
+        <div class="row">
+            <div class="header-text mb-4">
+                <h4> Email Sender</h4>
+                <caption> Fill out below to send email to customers</caption>
+                <p style="text-align: center" id="msg"></p>
+
+            </div>
+
+            <form class="needs-validation" onsubmit="event.preventDefault();">
+
+                <div class="input-group mb-3">
+                    <label class="main-label">Pick option for email recipient : </label>
+                    <div class="radio-options">
+                        <div class="option">
+                            <input type="radio" id="all" name="option" value="All" checked onclick="hideField()">
+                            <label for="all">All</label>
+                        </div>
+                        
+                        <div class="option">
+                            <input type="radio" id="custom" name="option" value="Custom" onclick="revealField()">
+                            <label for="custom">Custom</label><br>
+                        </div>
+                    </div>
+                    
+                  
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control form-control-lg bg-light fs-6"   name="emailRecipient"  id="emailRecipient" placeholder="Email Recipient" hidden required>
+                </div>
+
+
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control form-control-lg bg-light fs-6"   name="subject"  id="subject" placeholder="Subject Line" required>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control form-control-lg bg-light fs-6"   name="emailSalutation"  id="emailSalutation" placeholder="Salutation" required>
+                </div>
+
+                <div class="input-group mb-3">
+                    <textarea class="form-control form-control-lg bg-light fs-6" name="emailBody"  id="emailBody" placeholder="Email Body" required></textarea>
+                </div>
+
+                <div class="input-group mb-3">
+                    <label class="main-label">Select a Template: </label>
+                    <select id="templates" name="templates" placeholder="Email templates" required>
+                        <option value="1">Template 1</option>
+                        <option value="2">Template 2</option>
+                        <option value="3">Template 3</option>
+
+                    </select>
+                  
+                </div>
+
+                
+                
+              
+
+                <div class="input-group mb-3">
+                <button class="btn btn-lg btn-primary w-100 fs-6" id="login-btn" onclick="sendEmail()">Send</button>
+                </div>
+            </form>
+
+
+            <%- include('./partials/footer') %>
+
+            
+        </div>
+      </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>  
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+    <script>
+
+     function revealField(){
+        $('#emailRecipient').removeAttr('hidden');
+     }
+
+     function hideField(){
+        $('#emailRecipient').attr("hidden",true);
+     }
+
+       
+function sendEmail() {
+                var emailRecipient = document.getElementById("emailRecipient").value
+                var subject = document.getElementById("subject").value
+                var emailSalutation = document.getElementById("emailSalutation").value
+                var emailBody = document.getElementById("emailBody").value
+                var emailTemplate = document.getElementById("templates").value
+
+
+                console.log("Email receipient", emailRecipient)
+                console.log(subject)
+                console.log(emailSalutation)
+                console.log(emailBody)
+                console.log(emailTemplate)
+                if(subject && emailSalutation && emailBody && emailTemplate){
+                console.log("send email")
+                $.post("/sendEmail",{emailRecipient:emailRecipient, subject:subject, emailSalutation: emailSalutation, emailBody: emailBody,emailTemplate:emailTemplate }, function(data,status){
+                    console.log(data.msg)
+                    if(data.msg){
+                        const redirectUrl = "/notification?message=" + encodeURIComponent(data.msg);
+                        window.location.href = redirectUrl;
+                    }else{
+                        $('#msg').text(data.err)
+                    }
+                    
+                })
+                }
+            }
+        </script>
+
+      
+
+  </body>
+</html>
