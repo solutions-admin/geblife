@@ -13,9 +13,16 @@ RUN npm i
 
 RUN ls
 
+RUN  mv -rf node_modules /portal/node_modules
+
+RUN ls -la
+RUN ls -la /portal
 
 
-CMD ["node", "./dist/server.js"]
+
+
+
+CMD ["node", "./portal/server.js"]
 
 # RUN chmod +x scripts/deploy_aws_ecs.sh
 # CMD ["bash", "-c", "scripts/deploy_aws_ecs.sh"]
