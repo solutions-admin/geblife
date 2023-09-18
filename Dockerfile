@@ -8,6 +8,7 @@ WORKDIR /app
 
 RUN ls -la
 
+COPY portal/package*.json ./
 # Copy the entire contents of your local directory into the container at /app
 COPY . .
 
