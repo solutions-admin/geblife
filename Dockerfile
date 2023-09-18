@@ -11,7 +11,7 @@ COPY . .
 # RUN npm i typescript pm2 -g
 RUN npm i
 COPY . .
-RUN tsc
+# RUN tsc
 
 
 CMD ["node", "./dist/server.js"]
