@@ -4,14 +4,15 @@ EXPOSE 80
 ENV ENV=production
 
 WORKDIR /app
+RUN ls
 COPY portal/package*.json ./
-COPY tsconfig.json ./
 COPY . .
 
 # RUN npm i typescript pm2 -g
 RUN npm i
-COPY . .
-# RUN tsc
+
+RUN ls
+
 
 
 CMD ["node", "./dist/server.js"]
