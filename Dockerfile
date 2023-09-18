@@ -3,26 +3,25 @@ FROM node:12-alpine
 EXPOSE 80
 ENV ENV=production
 
-WORKDIR /app
+WORKDIR /portal
 RUN ls
-COPY portal/* ./
-COPY . .
+# COPY portal/package*.json ./
 
 # RUN npm i typescript pm2 -g
 RUN npm i
 
-RUN ls
 
-# RUN mv -rf node_modules /portal/
+
+
+COPY . .
 
 RUN ls -la
-# RUN ls -la /portal
+RUN ls -la /portal
 
 
 
 
-
-CMD ["node", "./server.js"]
+CMD ["node", "./portal/server.js"]
 
 # RUN chmod +x scripts/deploy_aws_ecs.sh
 # CMD ["bash", "-c", "scripts/deploy_aws_ecs.sh"]
