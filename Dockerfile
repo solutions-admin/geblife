@@ -3,8 +3,8 @@ FROM node:12-alpine
 EXPOSE 80
 ENV ENV=production
 
-WORKDIR /app
-RUN ls
+WORKDIR /portal
+RUN ls -la
 # COPY portal/package*.json ./
 
 # RUN npm i typescript pm2 -g
