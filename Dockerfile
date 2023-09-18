@@ -3,7 +3,7 @@ FROM node:12-alpine
 EXPOSE 80
 ENV ENV=production
 
-WORKDIR /portal
+WORKDIR /app
 RUN ls
 # COPY portal/package*.json ./
 
@@ -17,6 +17,8 @@ COPY . .
 
 RUN ls -la
 RUN ls -la /portal
+RUN ls -la /portal/node_modules
+
 
 
 
