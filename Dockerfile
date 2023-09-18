@@ -6,13 +6,20 @@ ENV ENV=production
 # Create a working directory in the container
 WORKDIR /app
 
+RUN ls -la
+
 # Copy the entire contents of your local directory into the container at /app
 COPY . .
+
+RUN ls -la
+
 
 # Install application dependencies (package.json and package-lock.json)
 RUN npm i
 
 RUN ls -la
+
+RUN ls -la portal
 
 CMD ["node", "portal/server.js"]
 
