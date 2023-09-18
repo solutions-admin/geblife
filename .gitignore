@@ -1,1 +1,5 @@
-portal/node_modules/
+dist/
+/portal/node_modules/
+.env
+.DS_Store
+command.txt

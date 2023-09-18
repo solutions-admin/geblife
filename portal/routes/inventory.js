@@ -142,7 +142,6 @@ router.post("/inventory", async (req, res) => {
 
 
 router.post("/viewInventory", async (req, res) => {
-  const filter = req.body; // Get the filter criteria from the client
 
   let query = 'SELECT name as "Name", category as "Category", color as "Color", size as "Size", total_quantity as "Total Quantity", available_quantity as "Available Quantity" FROM geblife.inventory'; // Initial query
 
@@ -272,9 +271,7 @@ router.post('/validateAndInsert', async (req, res) => {
 
 
 
-router.get('/testing', (req, res) => {
-  res.render("testing")
-})
+
 
 
 

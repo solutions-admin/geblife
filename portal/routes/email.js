@@ -92,70 +92,294 @@ router.post('/sendEmail', async (req, res) => {
     console.log("emailBody", emailBody)
     console.log("emailTemplate", emailTemplate)
 
-    try {
-    
-        var transporter = nodemailer.createTransport({
-          host: emailHost, // hostname
-          secure: false, // TLS requires secureConnection to be false
-          port: emailPort, // port for secure SMTP
-          auth: {
-              user: emailUser,
-              pass: emailPw
-          },
-          tls: {
-              ciphers: emailciphers
-          }
-      });
-  
-        // point to the template folder
-        const handlebarOptions = {
-          viewEngine: {
-              partialsDir: path.resolve('./views/'),
-              defaultLayout: false,
-          },
-          viewPath: path.resolve('./views/'),
-        };
-  
-      // use a template file with nodemailer
-      transporter.use('compile', hbs(handlebarOptions))
-  
-    // Define the list of email recipients as an array
-    const emailRecipients = await convertToArray(emailRecipient);
+    var emailRecipients = []
+    var customerFullNames =[]
 
-    console.log(emailRecipients)
-    
-      var mailOptions = {
-        from: `"Admin" <${emailUser}>`, // sender address
-        to: emailRecipients.join(', '), // list of receivers
+    // Create an array to store the results of each email sent
+    const emailResults = [];
+
+    // Check if emailRecipient is empty or null
+    if (emailRecipient == "" || emailRecipient == null) {
+      let query = 'SELECT first_name, last_name, email FROM geblife.customer WHERE subscription_status <> false';
+      console.log("Query: ", query);
+
+      try {
+        const client = await pool.connect();
+        const result = await client.query(query);
+        client.release();
+
+        const customerInfo = result.rows;
+        console.log(customerInfo);
+
+        // const emailRecipients = [];
+        // const customerFullNames = [];
+
+        for (let i = 0; i < customerInfo.length; i++) {
+          const customerEmail = customerInfo[i].email;
+          const customerFullName = customerInfo[i].first_name + " " + customerInfo[i].last_name;
+          emailRecipients.push(customerEmail);
+          customerFullNames.push(customerFullName);
+        }
+
+        console.log(emailRecipients);
+        console.log(customerFullNames);
+
+      } catch (error) {
+        console.error('Error retrieving customer details:', error);
+        res.json({ error: `Error retrieving customer details:, ${error}`});
+        return;
+
+      }
+    } else {
+      // If emailRecipient is provided, convert it to an array
+      emailRecipients = await convertToArray(emailRecipient);
+      console.log(emailRecipients);
+    }
+
+  try {
+
+    var transporter = nodemailer.createTransport({
+      host: emailHost, // hostname
+      secure: false, // TLS requires secureConnection to be false
+      port: emailPort, // port for secure SMTP
+      auth: {
+          user: emailUser,
+          pass: emailPw
+      },
+      tls: {
+          ciphers: emailciphers
+      }
+  });
+
+    // point to the template folder
+    const handlebarOptions = {
+      viewEngine: {
+          partialsDir: path.resolve('./views/'),
+          defaultLayout: false,
+      },
+      viewPath: path.resolve('./views/'),
+    };
+
+  // use a template file with nodemailer
+  transporter.use('compile', hbs(handlebarOptions))
+
+    console.log(emailRecipients.length)
+    console.log(customerFullNames.length)
+
+  // Check if the lengths of emailRecipients and customerFullNames are the same
+  if (emailRecipients.length === customerFullNames.length) {
+    for (let i = 0; i < emailRecipients.length; i++) {
+      console.log(`Customer Full Name ${i}: ${customerFullNames[i]}`);
+      console.log(`Email ${i}: ${emailRecipients[i]}`);
+
+      const mailOptions = {
+        from: `"Admin" <${emailUser}>`,
+        to: emailRecipients[i],
         subject: subject,
-        template: `emailtemplate${emailTemplate}`, // the name of the template file i.e email.handlebars
-        context:{
-          emailSalutation: emailSalutation, 
+        template: `emailtemplate${emailTemplate}`,
+        context: {
+          emailSalutation: emailSalutation + " " + customerFullNames[i] + ",",
           emailBody: emailBody
         }
       };
-  
-      // trigger the sending of the E-mail
-      transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log("Error sending email: ", error)
-            res.status(500).send({ err: `Sending Email failed. Error: ${error}. Please try again later.` });
 
-        }else{
-            console.log('Message sent: ' + info);
-            res.status(200).send({ msg: 'Email successfully sent!' });
-            console.log('Email successfully sent!')
-        }
+      // Send the email
+      try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Message sent: ' + info);
+        emailResults.push({
+                Email: emailRecipients[i],
+                Status: 'success',
+                Reason: ''
+        });
+      } catch (error){
+          console.log("Error sending email: ", error);
+          emailResults.push({
+              Email: emailRecipients[i],
+              Status: 'failed',
+              Reason: error.message
+          });
+      }
         
-      });
-  
-   
-  
-     
-    } catch (error) {
-      console.error("error"+ error);
-      res.status(500).send({ err: `Sending Email failed. Error: ${error}. Please try again later.` });
     }
-  });
+
+  } else {
+    for (let i = 0; i < emailRecipients.length; i++) {
+      console.log(`Email ${i}: ${emailRecipients[i]}`);
+
+      const mailOptions = {
+        from: `"Admin" <${emailUser}>`,
+        to: emailRecipients[i],
+        subject: subject,
+        template: `emailtemplate${emailTemplate}`,
+        context: {
+          emailSalutation: emailSalutation,
+          emailBody: emailBody
+        }
+      };
+
+      // Send the email
+      try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Message sent: ' + info);
+        emailResults.push({
+                Email: emailRecipients[i],
+                Status: 'success',
+                Reason: ''
+        });
+      } catch (error){
+          console.log("Error sending email: ", error);
+          emailResults.push({
+              Email: emailRecipients[i],
+              Status: 'failed',
+              Reason: error.message
+          });
+      }
+    
+    }
+
+   
+  }
+
+  console.log(emailResults)
+  res.status(200).json({ message: 'Emails sent!', emailResults });
+} catch (error) {
+  console.error("error" + error);
+  res.json({ error: `Sending Email failed. Error: ${error}. Please try again later.` });
+}
+
+});
+
+// Request to render edit customer page
+router.get("/editCustomer", setCurrentPage('/editCustomer'), (req, res) => {
+
+  console.log("Inside Customer")
+  req.session.currentpage = '/editCustomer';
+  console.log(req.session)
+  user = req.session.userFullName || "Nana G"
+  
+
+  res.render("editCustomer", {user})
+});
+
+
+// Request to retrieve customer details from database
+router.post("/customer", async (req, res) => {
+  const filter = req.body; // Get the filter criteria from the client
+
+  let query = 'SELECT * FROM geblife.customer WHERE 1=1'; // Initial query
+
+  const values = []; // Array to store parameterized values
+
+  // Build the SQL query dynamically based on the filter criteria
+  if (filter.first_name) {
+    query += ' AND first_name LIKE $1';
+    values.push(`%${filter.first_name}%`);
+  }
+
+  if (filter.last_name) {
+    query += ' AND last_name LIKE $2';
+    values.push(`%${filter.last_name}%`);
+  }
+
+  if (filter.email) {
+    query += ' AND email LIKE $3';
+    values.push(`%${filter.email}%`);
+  }
+
+  if (filter.subscription_status) {
+    query += ' AND subscription_status=$4';
+    values.push(`${filter.subscription_status}`);
+  }
+
+  
+
+  console.log(values)
+
+
+
+  console.log("Query: ", query)
+
+  try {
+    const client = await pool.connect();
+    const result = await client.query(query, values);
+    client.release();
+
+    const customerItems = result.rows;
+    console.log("Filtered customer items:");
+    console.log(customerItems);
+    res.json(customerItems);
+  } catch (error) {
+    console.error('Error retrieving filtered customer items:', error);
+    res.status(500).json({ success: false, error: `Error retrieving filtered customer items: ${error}` });
+  }
+});
+
+// Insert an item into the customer table
+router.post('/insertCustomer', async (req, res) => {
+  console.log('Received POST request to /insertCustomer');
+  const newCustomer = req.body;
+  console.log(newCustomer)
+  console.log(newCustomer.subscription_status)
+
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO geblife.customer (first_name, last_name, email, subscription_status) VALUES ($1, $2, $3, $4) RETURNING id',
+      [newCustomer.first_name, newCustomer.last_name, newCustomer.email, newCustomer.subscription_status]
+    );
+
+    
+    res.json({ success: true, message: ` Customer: (${newCustomer.first_name} ${newCustomer.last_name}) Info Added`, insertedItemId: result.rows[0].id });
+  } catch (error) {
+    console.error('Error inserting item:', error);
+    res.status(500).json({ success: false, error: `Error inserting item: ${error}`});
+  }
+});
+
+// Update an item in the customer table
+router.post('/updateCustomer', async (req, res) => {
+  const updatedCustomer = req.body;
+
+  console.log(updatedCustomer)
+
+  try {
+    await pool.query(
+      'UPDATE geblife.customer SET first_name = $1, last_name = $2, email =$3, subscription_status= $4 WHERE id = $5',
+      [updatedCustomer.first_name, updatedCustomer.last_name, updatedCustomer.email,  updatedCustomer.subscription_status, updatedCustomer.id]
+    );
+
+    res.json({ success: true, message: `Customer: (${updatedCustomer.first_name} ${updatedCustomer.last_name}) Info Updated` });
+  } catch (error) {
+    console.error('Error updating item:', error);
+    res.status(500).json({ success: false, error: `Error updating item: ${error}` });
+  }
+});
+
+// Delete an item from the customer table
+router.post('/deleteCustomer', async (req, res) => {
+  const itemId = req.body.id;
+  const customerName = req.body.first_name + " " + req.body.last_name;
+
+  try {
+    await pool.query('DELETE FROM geblife.customer WHERE id = $1', [itemId]);
+    res.json({ success: true, message: `Customer (${customerName}) info deleted` });
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ success: false, error: `Error deleting item: ${error}` });
+  }
+});
+
+
+
+router.get('/template', (req, res) => {
+  const url = req.query;
+  var emailSalutation = url.emailSalutation;
+  var emailBody= url.emailBody;
+  console.log(url)
+  res.render(`emailtemplate${url.emailTemplate}`,{emailSalutation,emailBody})
+})
+
+
 
 module.exports = router

@@ -7,7 +7,7 @@ const access = require("./routes/access.js")
 const path = require('path')
 const email = require("./routes/email.js")
 
-var PORT = 3000;
+var PORT = 8080;
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');

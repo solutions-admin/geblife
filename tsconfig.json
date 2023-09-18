@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "portal",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./custom_typings", "./node_modules/@types"]
+  },
+  "include": ["portal/**/*"],
+  "exclude": ["portal/types/*.ts", "node_modules", ".vscode"]
+}
