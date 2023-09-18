@@ -3,27 +3,18 @@ FROM node:12-alpine
 EXPOSE 80
 ENV ENV=production
 
-WORKDIR /portal
-RUN ls -la
-# COPY portal/package*.json ./
+# Create a working directory in the container
+WORKDIR /app
 
-# RUN npm i typescript pm2 -g
-RUN npm i
-
-
-
-
+# Copy the entire contents of your local directory into the container at /app
 COPY . .
 
+# Install application dependencies (package.json and package-lock.json)
+RUN npm i
+
 RUN ls -la
-RUN ls -la /portal
-RUN ls -la /portal/node_modules
 
-
-
-
-
-CMD ["node", "./portal/server.js"]
+CMD ["node", "portal/server.js"]
 
 # RUN chmod +x scripts/deploy_aws_ecs.sh
 # CMD ["bash", "-c", "scripts/deploy_aws_ecs.sh"]
