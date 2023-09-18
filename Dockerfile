@@ -13,7 +13,7 @@ RUN npm i
 
 RUN ls
 
-RUN  mv -rf node_modules /portal/node_modules
+RUN mv -rf node_modules /portal/
 
 RUN ls -la
 RUN ls -la /portal
