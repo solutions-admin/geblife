@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 
-const sslCert = fs.readFileSync(path.join(__dirname, '.\\certificate.crt'));
+const sslCert = fs.readFileSync(path.join(__dirname, 'certificate.crt'));
 
 
 // Create a connection pool
