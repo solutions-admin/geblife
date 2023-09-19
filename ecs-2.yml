@@ -12,10 +12,10 @@ Resources:
   ACMCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties: 
-      DomainName: !Sub "${DomainName}"
+      DomainName: !Sub "app.${DomainName}"
       DomainValidationOptions:
-        - DomainName: !Sub "${DomainName}"
-          ValidationDomain: !Sub "${DomainName}"
+        - DomainName: !Sub "app.${DomainName}"
+          ValidationDomain: !Sub "app.${DomainName}"
       ValidationMethod: DNS
   # AutoScalingRole:
   #   Type: AWS::IAM::Role
@@ -138,6 +138,7 @@ Resources:
         - FARGATE
   Service:
     Type: AWS::ECS::Service
+    DependsOn: TargetGroup
     Properties:
       # rename after first deploy
       ServiceName: aws-ecs-geblife-mgmt-svc
@@ -225,8 +226,8 @@ Resources:
     Type: AWS::Route53::RecordSet
     DependsOn: LoadBalancer
     Properties:
-      HostedZoneName: !Sub "${DomainName}."
-      Name: !Sub "${DomainName}"
+      HostedZoneId: 'Z0529492X4VVIY5OCA4U'
+      Name: !Sub "app.${DomainName}"
       Type: CNAME
       TTL: 60
       ResourceRecords:
