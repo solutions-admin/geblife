@@ -16,11 +16,13 @@ RUN ls -la
 
 
 # Install application dependencies (package.json and package-lock.json)
-RUN npm i
+RUN npm -g
 
 RUN ls -la
 
 RUN ls -la portal
+
+RUN ls -la portal/db
 
 CMD ["node", "portal/server.js"]
 
