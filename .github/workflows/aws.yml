@@ -64,11 +64,7 @@ jobs:
         run: |
           printenv
       
-      - name: Check if image exists in ECR
-      id: check-image-exists
-      run: |
-        aws ecr describe-images --repository-name $ECR_REPOSITORY --image-ids imageTag=$IMAGE_TAG || exit 0
-        echo "::set-output name=image-exists::true"
+      
 
       - name: Build & tag docker image
         id: build-image
