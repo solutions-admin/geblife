@@ -65,11 +65,11 @@ getSecretsValues().then((secretObject) => {
 
 
 // Render send email page
-router.get('/sendEmail', setCurrentPage('/sendEmail'), (req, res) => {
+router.get('/sendEmail', setCurrentPage('/sendEmail'),auth, (req, res) => {
     console.log("Inside Home")
     req.session.currentpage = '/sendEmail';
     console.log(req.session)
-    user = req.session.userFullName || "Nana G"
+    user = req.session.userFullName
 
     res.render("sendEmail", {user})
   })
@@ -251,12 +251,12 @@ router.post('/sendEmail', async (req, res) => {
 });
 
 // Request to render edit customer page
-router.get("/editCustomer", setCurrentPage('/editCustomer'), (req, res) => {
+router.get("/editCustomer", setCurrentPage('/editCustomer'), auth, (req, res) => {
 
   console.log("Inside Customer")
   req.session.currentpage = '/editCustomer';
   console.log(req.session)
-  user = req.session.userFullName || "Nana G"
+  user = req.session.userFullName
   
 
   res.render("editCustomer", {user})

@@ -53,28 +53,28 @@ getSecretsValues().then((secretObject) => {
 
 
 
-router.get('/', setCurrentPage('/'), (req, res) => {
+router.get('/', setCurrentPage('/'), auth, (req, res) => {
   console.log("Inside Home")
   req.session.currentpage = '/';
   console.log(req.session)
-  user = req.session.userFullName || "Nana G"
+  user = req.session.userFullName 
   
 
   res.render("home", {user})
 })
 
 // Render to view Inventory
-router.get('/viewInventory', setCurrentPage('/inventory'), (req, res) => {
+router.get('/viewInventory', setCurrentPage('/inventory'), auth,(req, res) => {
   console.log("Inside Inventory")
   req.session.currentpage = '/inventory';
   console.log(req.session)
-  user = req.session.userFullName || "Nana G"
+  user = req.session.userFullName
   
 
   res.render("viewInventory", {user})
 })
 
-router.get('/editInventory', setCurrentPage('/inventory'), (req, res) => {
+router.get('/editInventory', setCurrentPage('/inventory'), auth, (req, res) => {
   console.log("Inside Inventory")
   req.session.currentpage = '/inventory';
   console.log(req.session)
