@@ -4,11 +4,10 @@ EXPOSE 80
 ENV ENV=production
 
 # Create a working directory in the container
-WORKDIR /app
+# WORKDIR /app
 
 RUN ls -la
 
-COPY portal/package*.json ./
 # Copy the entire contents of your local directory into the container at /app
 COPY . .
 
