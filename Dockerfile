@@ -32,7 +32,7 @@ RUN ls -la portal/db
 RUN node -v
 
 
-CMD ["node", "portal/server.js"]
+CMD ["node", "server.js"]
 
 # RUN chmod +x scripts/deploy_aws_ecs.sh
 # CMD ["bash", "-c", "scripts/deploy_aws_ecs.sh"]
