@@ -22,7 +22,6 @@ RUN ls -la
 
 RUN ls -la node_modules
 
-COPY node_modules  portal
 
 
 RUN ls -la portal
