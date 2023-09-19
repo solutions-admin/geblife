@@ -16,7 +16,7 @@ RUN ls -la
 
 
 # Install application dependencies (package.json and package-lock.json)
-RUN npm -g
+RUN npm -i
 
 RUN ls -la
 
