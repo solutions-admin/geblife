@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:19-bullseye
 
 EXPOSE 80
 ENV ENV=production
