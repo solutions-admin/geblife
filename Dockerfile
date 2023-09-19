@@ -20,6 +20,8 @@ RUN npm i
 
 RUN ls -la
 
+RUN npm update express-handlebars nodemailer-express-handlebars
+
 RUN ls -la node_modules
 
 
@@ -27,6 +29,9 @@ RUN ls -la node_modules
 RUN ls -la portal
 
 RUN ls -la portal/db
+
+RUN node -v
+
 
 CMD ["node", "portal/server.js"]
 
