@@ -25,9 +25,8 @@ RUN ls -la node_modules
 
 
 
-RUN ls -la portal
 
-RUN ls -la portal/db
+RUN ls -la db
 
 RUN node -v
 
