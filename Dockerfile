@@ -20,6 +20,9 @@ RUN npm i
 
 RUN ls -la
 
+RUN ls -la node_modules
+
+
 RUN ls -la portal
 
 RUN ls -la portal/db
