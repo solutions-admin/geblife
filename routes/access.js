@@ -258,7 +258,8 @@ router.post('/register', async (req, res) => {
 
 router.get('/notification', (req, res) => {
   const message = req.query.message;
-  res.render('notification',{message})
+  const user = ""
+  res.render('notification',{message, user})
 });
 
 router.get('/approve-request/:userId', (req, res) => {
