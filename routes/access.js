@@ -15,7 +15,8 @@ const path = require('path')
 /**********************************************
  * Get Secret Credentials
  * ***********************************************/
-const getSecretsValues = require("../middleware/getSecrets.js")
+const getSecretsValues = require("../middleware/getSecrets.js");
+const session = require('express-session');
 
 var emailUser, emailPw, adminUser, region,accessKeyId,secretAccessKey, UserAccountTableName,emailciphers,emailPort, emailHost, dynamoDB,ses,dyanmodb,TableName = ''
 
@@ -70,6 +71,16 @@ router.get('/login', (req, res) => {
     res.render("login")
   
 })
+
+router.get('/logout', (req, res) => {
+  console.log("logging out...")
+  console.log(req.session)
+  req.session.destroy()
+  console.log(req.session)
+  res.render("login")
+
+})
+
 
 
 //Post request to search dynamodb for user credentials and navigate user to current page if credentials correct

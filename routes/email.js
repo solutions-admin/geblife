@@ -189,6 +189,7 @@ router.post('/sendEmail', async (req, res) => {
         console.log('Message sent: ' + info);
         emailResults.push({
                 Email: emailRecipients[i],
+                Customer: customerFullNames[i],
                 Status: 'success',
                 Reason: ''
         });
@@ -196,6 +197,7 @@ router.post('/sendEmail', async (req, res) => {
           console.log("Error sending email: ", error);
           emailResults.push({
               Email: emailRecipients[i],
+              Customer: customerFullNames[i],
               Status: 'failed',
               Reason: error.message
           });
@@ -224,6 +226,7 @@ router.post('/sendEmail', async (req, res) => {
         console.log('Message sent: ' + info);
         emailResults.push({
                 Email: emailRecipients[i],
+                Customer: "",
                 Status: 'success',
                 Reason: ''
         });
@@ -231,6 +234,7 @@ router.post('/sendEmail', async (req, res) => {
           console.log("Error sending email: ", error);
           emailResults.push({
               Email: emailRecipients[i],
+              Customer: "",
               Status: 'failed',
               Reason: error.message
           });

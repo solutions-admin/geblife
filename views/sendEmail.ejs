@@ -62,6 +62,39 @@
             font-size: 16px !important;
         }
 
+        /* Center the image using Flexbox */
+            #fullscreenGif {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 11111;
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+
+        
+  table th{
+    background-color: #35b68a !important;
+    padding: 10px !important;
+    
+  }
+
+ th, thead {
+    border-color: inherit;
+    border-style: hidden;
+    border-width: 0;
+}
+
+tbody, td, tfoot, tr {
+    border-color: inherit;
+    border-style: inherit;
+    border-width: 0;
+    text-align: center;
+}
+
+
       
     </style>
   </head>
@@ -72,7 +105,7 @@
       <div class="container">
         <div class="row">
             <div class="header-text mb-4">
-                <h4> Email Sender </h4>
+                <h4> <img width="100" height="100" src="https://img.icons8.com/plasticine/100/new-post--v2.png" alt="new-post--v2"/> Email Sender </h4>
                 <caption> Fill out below to send email to customers</caption>
                 <p style="text-align: center" id="msg"></p>
 
@@ -139,7 +172,7 @@
                 <button class="btn btn-lg btn-primary w-100 fs-6" id="login-btn" onclick="sendEmail()">Send</button>
                 </div>
 
-                <div class="modal fade" id="myModal">
+                <div class="modal fade" id="myModal" style="width: 100%;">
                     <div class="modal-dialog">
                       <div class="modal-content">
                         <!-- Modal Header -->
@@ -189,6 +222,9 @@
                   </div>
 
             </form>
+
+
+            <img id="fullscreenGif" src="./images/loading.gif"/>
 
 
             <%- include('./partials/footer') %>
@@ -272,12 +308,15 @@ function sendEmail() {
                 console.log(emailTemplate)
                 if(subject && emailSalutation && emailBody && emailTemplate){
                 console.log("send email")
+                $("#fullscreenGif").css("display", "block");
                 $.post("/sendEmail",{emailRecipient:emailRecipient, subject:subject, emailSalutation: emailSalutation, emailBody: emailBody,emailTemplate:emailTemplate }, function(data,status){
                     console.log("Print response")
                     console.log(status)
                     console.log(data)
                     console.log(data.emailResults)
                     var my_columns = [];
+
+                    $("#fullscreenGif").css("display", "none");
 
                    
                     if(data.emailResults){

@@ -314,15 +314,19 @@ $(document).ready(function () {
 
               getColors(); //call getColors() when page loads
 
+               // Create an array to store the dynamically generated datasets
+              const datasets = [];
+              
+
               const chartData = {
                 labels: data["Name"]._labels,
                 datasets: [
                   {
                     label: "Name",
-                    data: data["Name"]._labelsdata,
+                    data: data["Total Quantity"]._labelsdata,
                     backgroundColor: rgbArray, // use the rgbArray array crated on line 632
                     borderWidth: 1,
-                  },
+                  }
                 ],
               };
 
