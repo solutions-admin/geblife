@@ -64,9 +64,9 @@ router.get('/', setCurrentPage('/'), auth, (req, res) => {
 })
 
 // Render to view Inventory
-router.get('/viewInventory', setCurrentPage('/inventory'), auth,(req, res) => {
+router.get('/viewInventory', setCurrentPage('/viewInventory'), auth,(req, res) => {
   console.log("Inside Inventory")
-  req.session.currentpage = '/inventory';
+  req.session.currentpage = '/viewInventory';
   console.log(req.session)
   user = req.session.userFullName
   
@@ -74,11 +74,11 @@ router.get('/viewInventory', setCurrentPage('/inventory'), auth,(req, res) => {
   res.render("viewInventory", {user})
 })
 
-router.get('/editInventory', setCurrentPage('/inventory'), auth, (req, res) => {
+router.get('/editInventory', setCurrentPage('/editInventory'), auth, (req, res) => {
   console.log("Inside Inventory")
-  req.session.currentpage = '/inventory';
+  req.session.currentpage = '/editInventory';
   console.log(req.session)
-  user = req.session.userFullName || "Nana G"
+  user = req.session.userFullName
   
 
   res.render("editInventory", {user})
