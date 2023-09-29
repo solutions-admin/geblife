@@ -77,7 +77,8 @@ router.get('/logout', (req, res) => {
   console.log(req.session)
   req.session.destroy()
   console.log(req.session)
-  res.render("login")
+  const user = ""
+  res.render('logout',{user})
 
 })
 
@@ -135,6 +136,10 @@ router.post('/login', (req, res) => {
             console.log(req.session)
             console.log('Login successful')
             currentpage = req.session.currentpage
+            if(currentpage == undefined || currentpage == ''){
+              req.session.currentpage= "/"
+              currentpage = req.session.currentpage
+            }
             console.log("Navigate to: ", currentpage)
             res.json({msg: currentpage});
            

@@ -4,7 +4,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GEB LIFE App</title>
+    <title> Geb Life Management Portal</title>
+    <link rel="icon" type="image/x-icon" href="./images/geb_logo.jpg">
 
      <!-- Include CSS and external libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -83,6 +84,18 @@ tbody, td, tfoot, tr {
     color: #217a5c !important;
 }
 
+/* Center the image using Flexbox */
+#fullscreenGif {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 11111;
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+
   
 
     </style>
@@ -95,30 +108,35 @@ tbody, td, tfoot, tr {
     <div class="container">
 
         <h3> <img width="67" height="67" src="https://img.icons8.com/external-smashingstocks-thin-outline-smashing-stocks/67/external-inventory-logistic-services-smashingstocks-thin-outline-smashing-stocks.png" alt="external-inventory-logistic-services-smashingstocks-thin-outline-smashing-stocks"/> Inventory <b><span class="green">Summary</soan></b> </h3>
-    <div class="chartBox">
+          
+          <hr class="solid" style="margin-bottom: 30px;">
+
+          <h4 style="margin-top: 15px !important; margin-bottom: 5px !important; text-align: center !important;"> Summarized Data </h4>
+
+          <div id="wdr-component"></div>
+
+
+
+
+          <h4 style="margin-top: 35px !important; margin-bottom: 5px !important; text-align: center !important;"> Visualization </h4>
+
+          <div class="chartBox">
         <!-- format so that the charts show up side by side -->
         <div class="chart-container">
-          <canvas id="c"></canvas>
+          <canvas id="c1"></canvas>
         </div>
-        <div class="chart-container">
-            <canvas id="c2"></canvas>
-          </div>
+      
          
     </div>
 
    
 
-    <div class="chartBox">
-        <div class="chart-container">
-            <canvas id="c3"></canvas>
-          </div>
-        <div class="chart-container">
-            <canvas id="c4"></canvas>
-          </div>
-    </div>
+   
 
 
     <h3> <img width="67" height="67" src="https://img.icons8.com/external-smashingstocks-thin-outline-smashing-stocks/67/external-inventory-logistic-services-smashingstocks-thin-outline-smashing-stocks.png" alt="external-inventory-logistic-services-smashingstocks-thin-outline-smashing-stocks"/> Inventory <b><span class="green">Table</soan></b> </h3>
+
+      <hr class="solid" style="margin-bottom: 30px;">
 
         <table
           id="inventoryTable"
@@ -150,6 +168,7 @@ tbody, td, tfoot, tr {
 
     </div>
 
+    <img id="fullscreenGif" src="./images/loading.gif"/>
 
     <%- include('./partials/footer') %>
 
@@ -157,6 +176,10 @@ tbody, td, tfoot, tr {
     
 
 
+ <!-- webdatarocks libraries -->
+<link href="https://cdn.webdatarocks.com/latest/webdatarocks.min.css" rel="stylesheet"/>
+<script src="https://cdn.webdatarocks.com/latest/webdatarocks.toolbar.min.js"></script>
+<script src="https://cdn.webdatarocks.com/latest/webdatarocks.js"></script>
 
   
         <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
@@ -180,6 +203,7 @@ tbody, td, tfoot, tr {
     <script>
 
 $(document).ready(function () {
+
 
     function fastpivot(a) {
             "use strict";
@@ -210,40 +234,139 @@ $(document).ready(function () {
             return t;
           }
 
+          var pivot;
+          var myChart;
+          var chartData = {
+            labels: [],
+            datasets: [],
+          };
+
+   
+
+      function getColors() {
+        // Define your color generation logic here or use predefined colors
+        // For example, you can return an array of random colors
+        const rgbArray = [];
+        for (var i = 0; i < 200; i++) {
+          rgbArray.push(
+            "rgb(" +
+              Math.floor(Math.random() * 256) +
+              ", " +
+              Math.floor(Math.random() * 256) +
+              ", " +
+              Math.floor(Math.random() * 256) +
+              ")"
+          );
+        }
+        return rgbArray;
+      }
+
+
         
+      $("#fullscreenGif").css("display", "block");
+      $("html").css("overflow","hidden !important");
 
     $.post("/viewInventory",function (data, status) {
       
                 createTable(data);
+
+                var pivot = new WebDataRocks({
+                  container: "#wdr-component",
+                  toolbar: true,
+                  report: {
+                    dataSource: {
+                      data: data,
+                    },
+                    slice: {
+                        rows: [
+                          {
+                            uniqueName: "Name", // Replace with the field name you want as rows
+                          },
+                         
+                        ],
+                        measures: [
+                              {
+                                uniqueName: "Total Quantity",
+                                aggregation: "sum",
+                              },
+                        ],
+
+                      },
+                  },
+                  
+                  reportcomplete: function () {
+                    // When the WebDataRocks report is complete, create or update the Chart.js chart
+                    createOrUpdateChart();
+                  }
+                });
+
+
+                 // Function to create or update the Chart.js chart
+                  function createOrUpdateChart() {
+                    if (myChart) {
+                      // If the chart already exists, destroy it to recreate it with new data
+                      myChart.destroy();
+                    }
+
+                    console.log(pivot)
+                    // Get the pivot table data from WebDataRocks
+                    var pivotData = pivot.getReport("json");
+                    console.log("pivotData")
+                    console.log(pivotData)
+
+                    var datasetsLength = pivotData.slice.measures
+
+                    console.log(datasetsLength.length)
+
+                    // Prepare chartData based on the pivot table data
+                    chartData.labels = pivotData.dataSource.data.map((item) => item[pivotData.slice.rows[0].uniqueName]); // Update with your desired labels
+                     // Clear existing datasets
+                      chartData.datasets = [];
+
+                    // Iterate through measures and create datasets
+                    pivotData.slice.measures.forEach(function (measure) {
+                      chartData.datasets.push({
+                        label: measure.uniqueName, // Dataset label is the uniqueName of the measure
+                        data: pivotData.dataSource.data.map((item) => item[measure.uniqueName]), // Data field based on measure
+                        backgroundColor: getColors(), // Use your color generation logic or define custom colors
+                        borderWidth: 1,
+                      });
+                    });
+                
+
+
+
+                
+                
+
+                    // Create a new Chart.js chart
+                    var ctx = document.getElementById("c1").getContext("2d");
+                    myChart = new Chart(ctx, {
+                      type: "bar", // Update with your desired chart type
+                      data: chartData,
+                      options: {
+                        // Customize chart options as needed
+                      },
+                    });
+                  }
+
+
+                  $("#fullscreenGif").css("display", "none");
+              
+
+
         }
     );
 
     function createTable(data) {
         
-        function rerenderChart() {
-              myChart.destroy();
-            }
-
-            let chartStatus = Chart.getChart("c"); // <canvas> id
-            let chartStatus2 = Chart.getChart("c2"); // <canvas> id
-            let chartStatus3 = Chart.getChart("c3");
-            let chartStatus4 = Chart.getChart("c4");
-            // if (chartStatus != undefined) {
-            //   rerenderChart();
-            // }
+     
+        
      
 
             console.log(data);
              var my_columns = [];
 
-        //   if(data.length > 0){
-        //     var my_item1 = {};
-        //     my_item1.field = "ACTIONS";
-        //     my_item1.title =  "ACTIONS";
-        //     my_item1.formatter = actionsFormatter
-        //     my_columns.push(my_item1);
-         
-        //   }
          
 
           $.each(data[0], function (key, value) {
@@ -268,327 +391,6 @@ $(document).ready(function () {
             search: true,
           });
 
-          const plugin = {
-                id: "customCanvasBackgroundColor",
-                beforeDraw: (chart, args, options) => {
-                  const { ctx } = chart;
-                  ctx.save();
-                  ctx.globalCompositeOperation = "destination-over";
-                  ctx.fillStyle = options.color || "#99ffff";
-                  ctx.fillRect(0, 0, chart.width, chart.height);
-                  ctx.restore();
-                },
-              };
-              var mydata = data;
-              var ctx = document.getElementById("c").getContext("2d");
-              var ctx2 = document.getElementById("c2").getContext("2d");
-              var ctx3 = document.getElementById("c3").getContext("2d");
-              var ctx4 = document.getElementById("c4").getContext("2d");
-
-              
-            
-              //var json = JSON.parse(data.tb1);
-              //console.log("data.tb1");
-              //console.log(data.tb1);
-              var data = fastpivot(data);
-
-              var rgbArray = [];
-
-              function getColors() {
-                // do a for loop to fill the rgbArray array with 200 random rgb colors, each index formatted as "rgb( number, number, number, 0.5)" the 0.5 is to keep the colors soft for UX
-                for (var i = 0; i < 200; i++) {
-                  rgbArray.push(
-                    "rgb(" +
-                      Math.floor(Math.random() * 256) +
-                      ", " +
-                      Math.floor(Math.random() * 255) +
-                      ", " +
-                      Math.floor(Math.random() * 255) +
-                      ", 0.5 " +
-                      ")"
-                  );
-                }
-                // //console.log("colors array: " + rgbArray);
-                return rgbArray;
-              }
-
-              getColors(); //call getColors() when page loads
-
-               // Create an array to store the dynamically generated datasets
-              const datasets = [];
-              
-
-              const chartData = {
-                labels: data["Name"]._labels,
-                datasets: [
-                  {
-                    label: "Name",
-                    data: data["Total Quantity"]._labelsdata,
-                    backgroundColor: rgbArray, // use the rgbArray array crated on line 632
-                    borderWidth: 1,
-                  }
-                ],
-              };
-
-              const chartData2 = {
-                labels: data["Category"]._labels,
-                datasets: [
-                  {
-                    label: "Category",
-                    data: data["Category"]._labelsdata,
-                    backgroundColor: rgbArray, // use the rgbArray array crated on line 632
-                    borderWidth: 1,
-                  },
-                ],
-              };
-
-              const chartData3 = {
-                labels: data["Color"]._labels,
-                datasets: [
-                  {
-                    label: "Color",
-                    data: data["Color"]._labelsdata,
-                    backgroundColor: rgbArray, // use the rgbArray array crated on line 632
-                    borderWidth: 1,
-                  },
-                ],
-              };
-
-              const chartData4 = {
-                labels: data["Size"]._labels,
-                datasets: [
-                  {
-                    label: "Size",
-                    data: data["Size"]._labelsdata,
-                    backgroundColor: rgbArray, // use the rgbArray array crated on line 632
-                    borderWidth: 1,
-                  },
-                ],
-              };
-
-             
-              const config = {
-                type: "bar", //horizontalBar, bar, pie, line, doughnut, radar, polarArea
-                data: chartData,
-                plugins: [ChartDataLabels, plugin],
-                options: {
-                  responsive: true,
-                  // maintainAspectRatio: false,
-                  plugins: {
-                    customCanvasBackgroundColor: {
-                      color: "white",
-                    },
-                    datalabels: {
-                      labels: {
-                        value: {
-                          color: "black",
-                          // font: {
-                          //       size: 50
-                          // }
-                        },
-                      },
-                    },
-                    title: {
-                      display: true,
-                      text: "Count by Name",
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  },
-                },
-                layout: {
-                  // padding:{
-                  //   left:50,
-                  //   right:0,
-                  //   bottom:0,
-                  //   top: 0
-                  // },
-                  tooltips: {
-                    enable: true,
-                  },
-                  scales: {
-                    x: {
-                      stacked: true,
-                    },
-                    y: {
-                      beginAtZero: true,
-                      stacked: true,
-                    },
-                  },
-                },
-              };
-
-              const config2 = {
-                type: "bar", //horizontalBar, bar, pie, line, doughnut, radar, polarArea
-                data: chartData2,
-                plugins: [ChartDataLabels, plugin],
-                options: {
-                  responsive: true,
-                  // maintainAspectRatio: false,
-                  plugins: {
-                    customCanvasBackgroundColor: {
-                      color: "white",
-                    },
-                    datalabels: {
-                      labels: {
-                        value: {
-                          color: "black",
-                          // font: {
-                          //       size: 50
-                          // }
-                        },
-                      },
-                    },
-                    title: {
-                      display: true,
-                      text: "Count by Cateory",
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  },
-                },
-                layout: {
-                  // padding:{
-                  //   left:50,
-                  //   right:0,
-                  //   bottom:0,
-                  //   top: 0
-                  // },
-                  tooltips: {
-                    enable: true,
-                  },
-                  scales: {
-                    x: {
-                      stacked: true,
-                    },
-                    y: {
-                      beginAtZero: true,
-                      stacked: true,
-                    },
-                  },
-                },
-              };
-
-              const config3 = {
-                type: "bar", //horizontalBar, bar, pie, line, doughnut, radar, polarArea
-                data: chartData3,
-                plugins: [ChartDataLabels, plugin],
-                options: {
-                  responsive: true,
-                  // maintainAspectRatio: false,
-                  plugins: {
-                    customCanvasBackgroundColor: {
-                      color: "white",
-                    },
-                    datalabels: {
-                      labels: {
-                        value: {
-                          color: "black",
-                          // font: {
-                          //       size: 50
-                          // }
-                        },
-                      },
-                    },
-                    title: {
-                      display: true,
-                      text: "Count by Color",
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  },
-                },
-                layout: {
-                  // padding:{
-                  //   left:50,
-                  //   right:0,
-                  //   bottom:0,
-                  //   top: 0
-                  // },
-                  tooltips: {
-                    enable: true,
-                  },
-                  scales: {
-                    x: {
-                      stacked: true,
-                    },
-                    y: {
-                      beginAtZero: true,
-                      stacked: true,
-                    },
-                  },
-                },
-              };
-
-
-              const config4 = {
-                type: "bar", //horizontalBar, bar, pie, line, doughnut, radar, polarArea
-                data: chartData4,
-                plugins: [ChartDataLabels, plugin],
-                options: {
-                  responsive: true,
-                  // maintainAspectRatio: false,
-                  plugins: {
-                    customCanvasBackgroundColor: {
-                      color: "white",
-                    },
-                    datalabels: {
-                      labels: {
-                        value: {
-                          color: "black",
-                          // font: {
-                          //       size: 50
-                          // }
-                        },
-                      },
-                    },
-                    title: {
-                      display: true,
-                      text: "Count by Size",
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  },
-                },
-                layout: {
-                  // padding:{
-                  //   left:50,
-                  //   right:0,
-                  //   bottom:0,
-                  //   top: 0
-                  // },
-                  tooltips: {
-                    enable: true,
-                  },
-                  scales: {
-                    x: {
-                      stacked: true,
-                    },
-                    y: {
-                      beginAtZero: true,
-                      stacked: true,
-                    },
-                  },
-                },
-              };
-
-              Chart.register(ChartDataLabels);
-              //myPieChart.destroy()
-
-              //-- End of chart destroy
-              myChart = new Chart(ctx, config);
-              myChart2 = new Chart(ctx2, config2);
-              myChart3 = new Chart(ctx3, config3);
-              myChart4 = new Chart(ctx4, config4);
-          
       }
 
     });

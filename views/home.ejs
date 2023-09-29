@@ -4,7 +4,9 @@
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GEB LIFE App</title>
+    <title> Geb Life Management Portal</title>
+    <link rel="icon" type="image/x-icon" href="./images/geb_logo.jpg">
+
 
   
 
@@ -17,12 +19,84 @@
     />
     
 
- 
+    <style>
+      .green{
+    color: #217a5c !important;
+}
+
+/* Solid border */
+hr.solid {
+  border-top: 3px solid #bbb;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 10vw;
+    object-fit: cover;
+    transition: 1s ease;
+   
+}
+
+.card-img-top:hover{
+  -webkit-transform: scale(1.02);
+  -ms-transform: scale(1.02);
+  transform: scale(1.02);
+  transition: 1s ease;
+  /* filter: blur(1px);
+    -webkit-filter: blur(1px);s */
+}
+
+
+    </style>
  
   </head>
 
   <body>
     <%- include('./partials/header') %>
+
+    <div class="container">
+      <h1 style="text-align: center; margin-bottom: 30px;"> Welcome to <b class="green">Geb Life Management Portal</b></h1>
+      <hr class="solid" style="margin-bottom: 20px;">
+      <p style="text-align: center;"> Explore and make use of any of the accessible features at your disposal</p>
+
+      <div class="card-group">
+        <div class="card">
+          <a href="/viewInventory" target="_blank"><img src="./images/inventory.jpg" class="card-img-top" alt="..."></a>
+            <div class="card-body">
+              <h5 class="card-title"><a href="/viewInventory" target="_blank"> View Inventory </a> </h5>
+              <p class="card-text"> Access Inferface to view current inventory with summarized visualization</p>
+          </div>
+        </div>
+        <div class="card">
+          <a href="/editInventory" target="_blank"><img src="./images/inventory.jpg" class="card-img-top" alt="..."></a>
+          <div class="card-body">
+            <h5 class="card-title"><a href="/editInventory" target="_blank"> Edit Inventory </a> </h5>
+            <p class="card-text"> Access Interface to modify inventory via the table or barcode scanner</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-group">
+        <div class="card">
+          <a href="/sendEmail" target="_blank"><img src="./images/email.png" class="card-img-top" alt=""></a>
+          <div class="card-body">
+            <h5 class="card-title"><a href="/sendEmail" target="_blank"> Send Email </a> </h5>
+            <p class="card-text"> Access Interface to send mass/custom emails to Customers</p>
+          </div>
+        </div>
+        <div class="card">
+          <a href="/editCustomer" target="_blank"><img src="./images/customer.jpg" class="card-img-top" alt="..."></a>
+          <div class="card-body">
+            <h5 class="card-title"><a href="/editCustomer" target="_blank"> Edit Customer Info </a> </h5>
+            <p class="card-text"> Access Interface to edit Customer information</p>
+          </div>
+        </div>
+      </div>
+      
+    
+    </div>
+
+ 
   
     
 
