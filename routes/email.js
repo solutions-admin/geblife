@@ -173,7 +173,7 @@ router.post('/sendEmail', async (req, res) => {
       console.log(`Email ${i}: ${emailRecipients[i]}`);
 
       const mailOptions = {
-        from: `"Admin" <${emailUser}>`,
+        from: emailUser,
         to: emailRecipients[i],
         subject: subject,
         template: `emailtemplate${emailTemplate}`,
@@ -210,7 +210,7 @@ router.post('/sendEmail', async (req, res) => {
       console.log(`Email ${i}: ${emailRecipients[i]}`);
 
       const mailOptions = {
-        from: `"Admin" <${emailUser}>`,
+        from: `"Geblife Management" <${emailUser}>`,
         to: emailRecipients[i],
         subject: subject,
         template: `emailtemplate${emailTemplate}`,
@@ -383,6 +383,32 @@ router.get('/template', (req, res) => {
   console.log(url)
   res.render(`emailtemplate${url.emailTemplate}`,{emailSalutation,emailBody})
 })
+
+// router.get('/unsubscribe/:userId', (req, res) => {
+
+//   console.log("Unsubscibe user")
+
+//   const updatedCustomer = req.body;
+
+//   console.log(updatedCustomer)
+
+//   try {
+//     await pool.query(
+//       'UPDATE geblife.customer SET first_name = $1, last_name = $2, email =$3, subscription_status= $4 WHERE id = $5',
+//       [updatedCustomer.first_name, updatedCustomer.last_name, updatedCustomer.email,  updatedCustomer.subscription_status, updatedCustomer.id]
+//     );
+
+//     res.json({ success: true, message: `Customer: (${updatedCustomer.first_name} ${updatedCustomer.last_name}) Info Updated` });
+//   } catch (error) {
+//     console.error('Error updating item:', error);
+//     res.status(500).json({ success: false, error: `Error updating item: ${error}` });
+//   }
+
+
+
+
+
+// });
 
 
 

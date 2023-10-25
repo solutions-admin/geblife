@@ -4,8 +4,9 @@ var bodyParser = require('body-parser')
 var app = express();
 const inventory = require('./routes/inventory')
 const access = require("./routes/access.js")
-const path = require('path')
 const email = require("./routes/email.js")
+const resourcemanagement = require("./routes/resource_mgt.js")
+const path = require('path')
 
 var PORT = 8080;
 
@@ -33,7 +34,7 @@ app.use(session({
 
 // use res.render to load up an ejs view file
 
-app.use(inventory,access,email)
+app.use(resourcemanagement,inventory,access,email)
 app.listen(PORT, function(err){
     if (err) console.log(err);
     console.log("Server listening on PORT", PORT);

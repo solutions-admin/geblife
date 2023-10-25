@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1448.0.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title> Geb Life Management Portal</title>
+    <link rel="icon" type="image/x-icon" href="./images/geb_logo.jpg">
+
+    <style>
+       
+    </style>
+  </head>
+  <body>
+
+    <%- include('./partials/header') %>
+
+
+    <div class="container">
+        <h1>Resource Management</h1>
+    <div id="fileExplorer">
+        <!-- <p> Preview Directory: <span id="previous_directory"></span> </p> -->
+        <p> Current Directory: <span id="current_directory"></span> </p>
+        <h2>Contents:</h2>
+        <ul id="fileList"></ul>
+    </div>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="uploadedFile" accept=".pdf, .doc, .docx, .jpg, .png, .txt">
+        
+        <!-- Add a dropdown to select the target directory -->
+        <select id="directorySelect" hidden>
+            <option value="">Select a Target Directory</option>
+            <!-- You can populate the options dynamically using JavaScript -->
+        </select>
+        
+        <!-- <label for="rootDirectory">Upload to Root Directory</label>
+        <input type="checkbox" id="rootDirectory" name="rootDirectory"> -->
+        <button type="submit">Upload</button>
+        <button id="homeButton">Home</button>
+        <button id="returnButton" type="button">Return to Parent Directory</button>
+    </form>
+    <div id="fileInfo">
+        <h2>File Information</h2>
+        <p><strong>File Name:</strong> <span id="fileName"></span></p>
+        <pre id="fileContents"></pre>
+        <img id="imagePreview" src="" alt="Image Preview">
+    </div>
+    <div id="createDirSection">
+        <h2>Create Directory</h2>
+        <form id="createDirForm">
+            <input type="text" id="dirName" placeholder="Directory Name" required>
+            <button type="button" id="createDir">Create</button>
+        </form>
+    </div>
+    </div>
+
+    <%- include('./partials/footer') %>
+
+    
+
+
+   
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const uploadForm = document.getElementById('uploadForm');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileContentsContainer = document.getElementById('fileContents');
+    const fileList = document.getElementById('fileList');
+    const directorySelect = document.getElementById('directorySelect');
+    const createDirForm = document.getElementById('createDirForm');
+    const dirNameInput = document.getElementById('dirName');
+    const imagePreview = document.getElementById('imagePreview');
+    const returnButton = document.getElementById('returnButton');
+
+    // Event listener for the "Home" button
+    document.getElementById('homeButton').addEventListener('click', function () {
+        currentDirectory = '';
+        listObjects();
+    });
+
+    let currentDirectory = '';
+    // let previous_directory = '';
+
+    
+    let accessKeyId = '<%-s3accessKeyId%>'
+    let secretAccessKey = '<%-s3secretAccessKey%>'
+    // Create the AWS S3 object with your credentials
+    const s3 = new AWS.S3({
+        accessKeyId: accessKeyId, // Replace with your AWS access key
+        secretAccessKey: secretAccessKey // Replace with your AWS secret key
+    });
+
+    let bucketName = '<%-s3Bucket%>'
+
+    console.log("s3Bucket: ", bucketName)
+    // Replace 'YOUR_BUCKET_NAME' with your S3 bucket name
+    // const bucketName = 'it493geblife';
+
+
+    function listObjects(prefix = '') {
+        console.log("Current Prefix: ", prefix)
+        const params = {
+            Bucket: bucketName,
+            Delimiter: '/',
+            Prefix: prefix
+        };
+
+        // document.getElementById("previous_directory").innerHTML = previous_directory
+        document.getElementById("current_directory").innerHTML = currentDirectory
+        console.log('Current Directory:', currentDirectory);
+    
+        s3.listObjects(params, function (err, data) {
+            if (err) {
+                console.error('Error listing objects: ', err);
+            } else {
+                const directories = data.CommonPrefixes;
+                console.log("all directories:", directories);
+                //console.log("current directory:", currentDirectory);
+                const files = data.Contents;
+                console.log("files: ", files);
+                fileList.innerHTML = '';
+    
+                directories.forEach(function (directory) {
+                    // Exclude the current directory when it's the root directory
+                    if (currentDirectory !== '' || directory.Prefix !== currentDirectory + '/') {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = directory.Prefix;
+                        listItem.classList.add('directory');
+    
+                        // Delete button for directory
+                        const deleteDirButton = document.createElement('button');
+                        deleteDirButton.textContent = 'Delete';
+                        deleteDirButton.addEventListener('click', function () {
+                        deleteDirectory(directory.Prefix);
+                        });
+                        listItem.appendChild(deleteDirButton);
+    
+                        listItem.addEventListener('click', function () {
+                            const directoryName = directory.Prefix;
+                            console.log("directoryName: ", directoryName)
+                            toggleDirectoryContents(directoryName);
+                        });
+    
+                        // Nested directory's file list (UL)
+                        const nestedFileList = document.createElement('ul');
+                        listItem.appendChild(nestedFileList);
+    
+                        //console.log("list item", listItem);
+    
+                        fileList.appendChild(listItem);
+                    }
+                });
+            
+    
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    console.log(file);
+                    console.log("file key:", file.Key);
+    
+                    const filelistItem = document.createElement('li');
+                    filelistItem.textContent = file.Key;
+                    
+
+    
+                    if (!file.Key.endsWith('/')) {
+                        const downloadButton = document.createElement('button');
+                        downloadButton.textContent = 'Download';
+                        downloadButton.addEventListener('click', function () {
+                            downloadFile(file.Key);
+                        });
+                        filelistItem.appendChild(downloadButton);
+    
+                        if (isImageFile(file.Key)) {
+                            const previewButton = document.createElement('button');
+                            previewButton.textContent = 'Preview';
+                            previewButton.addEventListener('click', function () {
+                                showPreview(file.Key);
+                            });
+                            filelistItem.appendChild(previewButton);
+                        }
+    
+                        // Delete button for file
+                        const deleteFileButton = document.createElement('button');
+                        deleteFileButton.textContent = 'Delete';
+                        deleteFileButton.addEventListener('click', function () {
+                            deleteObject(file.Key);
+                        });
+                        filelistItem.appendChild(deleteFileButton);
+    
+                        // Check if it's not the root directory or it's the root directory but not the 0th index
+                        if (currentDirectory !== '/' || i !== 0) {
+                            fileList.appendChild(filelistItem);
+                        }
+                    }
+                }
+                // Show or hide the "Select a Directory" dropdown
+                if (currentDirectory === '') {
+                    directorySelect.hidden = true; // Hide in the root directory
+                } else {
+                    directorySelect.hidden = false; // Show in subdirectories
+                }
+                updateDirectorySelect(files);
+                console.log(fileList);
+            }
+        });
+    }
+    
+    
+    
+    function isImageFile(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension);
+    }
+    function toggleDirectoryContents(directoryName) {
+        // previous_directory = currentDirectory;
+        currentDirectory = directoryName; // Set the current directory to the selected directory
+        console.log("Inside toggleDirectoryContents:", currentDirectory)
+        listObjects(currentDirectory);
+    }
+    
+
+    function downloadFile(filename) {
+        const link = document.createElement('a');
+        link.href = `https://s3.amazonaws.com/${bucketName}/${filename}`;
+        link.download = filename;
+        link.click();
+    }
+
+    function showPreview(imageKey) {
+        const imageUrl = `https://s3.amazonaws.com/${bucketName}/${imageKey}`;
+        imagePreview.src = imageUrl;
+    }
+
+    function updateDirectorySelect(objects) {
+        directorySelect.innerHTML = '<option value="">Select a Directory to upload: </option>';
+    
+        const directoryNames = [...new Set(objects.map(object => {
+            const parts = object.Key.split('/');
+            if (parts.length > 1) {
+                return parts.slice(0, -1).join('/'); // Include all parent directories
+            }
+            return null;
+        }))];
+    
+        directoryNames.filter(directoryName => directoryName !== null).forEach(function(directoryName) {
+            const option = document.createElement('option');
+            option.value = directoryName;
+            option.textContent = directoryName;
+            directorySelect.appendChild(option);
+        });
+    }
+    
+// Add a variable to track whether the deletion confirmation has been shown
+// Create a variable to track whether the deletion confirmation has been shown.
+let deletionConfirmed = false;
+
+// Function to delete a directory.
+function deleteDirectory(directoryKey) {
+  // Show the confirmation dialog only if it hasn't been shown yet.
+  if (!deletionConfirmed) {
+    const confirmed = window.confirm('Are you sure you want to delete this directory and its contents?');
+    if (confirmed) {
+      deletionConfirmed = true; // Set the flag to prevent future confirmations.
+    }
+  }
+
+  // If the user confirmed the deletion, proceed with it.
+  if (deletionConfirmed) {
+    const params = {
+      Bucket: bucketName,
+      Prefix: directoryKey
+    };
+
+    s3.listObjects(params, function (err, data) {
+      if (err) {
+        console.error('Error listing objects in directory: ', err);
+      } else {
+        const objects = data.Contents;
+        objects.forEach(function (object) {
+          deleteObjectWithoutConfirmation(object.Key);
+        });
+        listObjects(currentDirectory);
+      }
+    });
+  }
+}
+function deleteObjectWithoutConfirmation(key) {
+    const params = {
+        Bucket: bucketName,
+        Key: key
+    };
+
+    s3.deleteObject(params, (err, data) => {
+        if (err) {
+            console.log('Error deleting object:', err);
+        } else {
+            console.log('Object deleted successfully.');
+            listObjects(currentDirectory);
+        }
+    });
+}
+
+    function deleteObject(key) {
+        const params = {
+            Bucket: bucketName,
+            Key: key
+        };
+    
+        const confirmed = window.confirm('Are you sure you want to delete this?');
+    
+        if (confirmed) {
+            s3.deleteObject(params, (err, data) => {
+                if (err) {
+                    console.log('Error deleting object:', err);
+                } else {
+                    console.log('Object deleted successfully.');
+                    listObjects(currentDirectory);
+                }
+            });
+        }
+    }
+
+    // Event listener for creating a directory
+    document.getElementById('createDir').addEventListener('click', function () {
+        const dirName = dirNameInput.value.trim();
+
+        if (dirName) {
+            let fullPath = currentDirectory;
+
+
+            fullPath += dirName;
+
+            const params = {
+                Bucket: bucketName,
+                Key: fullPath + '/', // Note the trailing slash to indicate it's a directory
+                Body: '' // Empty body to represent a directory
+            };
+
+            s3.putObject(params, (err, data) => {
+                if (err) {
+                    console.log('Error creating directory:', err);
+                } else {
+                    console.log('Directory created successfully.');
+                    listObjects(currentDirectory);
+                }
+            });
+
+            dirNameInput.value = '';
+        }
+    });
+
+    // Event listener for file upload
+    uploadForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        
+        const uploadedFile = document.getElementById('uploadedFile').files[0];
+        const selectedDirectory = directorySelect.value;
+        // const uploadToRoot = document.getElementById('rootDirectory').checked;
+
+        if (uploadedFile) {
+            fileNameSpan.textContent = uploadedFile.name;
+
+            let key;
+            key = selectedDirectory !== '' ? selectedDirectory + '/' + uploadedFile.name : uploadedFile.name;
+            // if (uploadToRoot) {
+            //     key = uploadedFile.name;
+            // } else {
+               
+            // }
+
+            const params = {
+                Bucket: bucketName,
+                Key: key,
+                Body: uploadedFile
+            };
+
+            s3.putObject(params, (err, data) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('File uploaded successfully to AWS S3');
+                    listObjects(currentDirectory);
+                }
+            });
+        }
+    });
+
+    // Event listener for the return button
+    returnButton.addEventListener('click', function () {
+        if (currentDirectory !== '') {
+            const parts = currentDirectory.split('/');
+            console.log("parts: ", parts)
+            var parentDirectory = currentDirectory.replace(/\/$/, '').split('/').slice(0, -1).join('/') + "/";
+            // const parentDirectory = parts.slice(0, -1).join('/');
+            if(parentDirectory == "/"){
+                parentDirectory = "";
+            }
+            console.log("parent directory:", parentDirectory);
+            toggleDirectoryContents(parentDirectory);
+        }
+        // if (previous_directory !== '') {
+        // toggleDirectoryContents(previous_directory); 
+    
+    });
+    
+    
+    listObjects(); // List objects when the page loads
+    
+});
+    </script>
+  </body>
+</html>
