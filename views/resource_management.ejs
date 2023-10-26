@@ -13,7 +13,71 @@
     <link rel="icon" type="image/x-icon" href="./images/geb_logo.jpg">
 
     <style>
+
+        .listitem {
+            font-weight:bold;
+            font-size:15px;
+            font-family:"Myriad Pro", sans-serif;
+            /* padding:5px; */
+            list-style-image:url('./images/file-32x32.png');
+            max-width: fit-content;
+        }
+        .directoryitem {
+            list-style-image:url('./images/directory-32x32.png') !important;
+            /* padding-left:30px; */
+        }
+
+        input[type="file"]::file-selector-button {
+            background-color: #000000; /* Green */
+            border-style: black;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            border-radius: 4px !important;
+            /* margin: 10px; */
+            }
+            input[type="file"]::file-selector-button:hover{
+                background-color: rgb(139, 141, 140) !important;
+            }
+        button{
+            background-color: #000000; /* Green */
+            border-style: black;
+            color: white;
+            padding: 5px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 15px;
+            border-radius: 4px !important;
+            margin: 10px;
+        }
+
+        button:hover {
+            background-color: rgb(139, 141, 140) !important;
+        }
+
+        .deletebtn {
+            background-color: rgb(221, 63, 63) !important;
+        }
+
+        .deletebtn:hover {
+            background-color: rgb(242, 113, 113) !important;
+        }
        
+        .previewBtn {
+            background-color: rgb(144, 62, 215) !important;
+        }
+
+        .downloadBtn{
+            background-color: rgb(29, 139, 73) !important;
+        }
+
+        #current_directory{
+            font-weight: normal !important;
+        }
     </style>
   </head>
   <body>
@@ -22,15 +86,16 @@
 
 
     <div class="container">
-        <h1>Resource Management</h1>
-    <div id="fileExplorer">
+        <h1 style="margin-bottom: 20px !important;"> <img width="100" height="100" src="https://img.icons8.com/clouds/100/file.png" alt="file"/>Resource Management</h1>
+        <hr class="solid" style="margin-bottom: 20px;">
+    <div id="fileExplorer" >
         <!-- <p> Preview Directory: <span id="previous_directory"></span> </p> -->
-        <p> Current Directory: <span id="current_directory"></span> </p>
-        <h2>Contents:</h2>
+        <p style="font-weight: bold;"> Current Directory: <span id="current_directory"></span> </p>
+        <h3>Contents:</h3>
         <ul id="fileList"></ul>
     </div>
     <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" id="uploadedFile" accept=".pdf, .doc, .docx, .jpg, .png, .txt">
+        <input type="file" id="uploadedFile" accept=".pdf, .doc, .docx, .jpg, .png, .txt, .xlsx, .xlsm">
         
         <!-- Add a dropdown to select the target directory -->
         <select id="directorySelect" hidden>
@@ -44,11 +109,14 @@
         <button id="homeButton">Home</button>
         <button id="returnButton" type="button">Return to Parent Directory</button>
     </form>
+    <hr class="solid" style="margin-bottom: 20px;">
+
     <div id="fileInfo">
         <h2>File Information</h2>
         <p><strong>File Name:</strong> <span id="fileName"></span></p>
         <pre id="fileContents"></pre>
-        <img id="imagePreview" src="" alt="Image Preview">
+        <div class="container"> <img id="imagePreview" src="" class="rounded img-fluid img-thumbnail" alt="Image Preview"></div>
+       
     </div>
     <div id="createDirSection">
         <h2>Create Directory</h2>
@@ -132,18 +200,23 @@
                     // Exclude the current directory when it's the root directory
                     if (currentDirectory !== '' || directory.Prefix !== currentDirectory + '/') {
                         const listItem = document.createElement('li');
-                        listItem.textContent = directory.Prefix;
-                        listItem.classList.add('directory');
+                        listItem.classList.add('directoryitem');
+                        const spanItem = document.createElement('SPAN');
+                        spanItem.textContent = directory.Prefix;
+                        spanItem.classList.add('directory');
+
+                        listItem.appendChild(spanItem);
     
                         // Delete button for directory
                         const deleteDirButton = document.createElement('button');
+                        deleteDirButton.classList.add('deletebtn')
                         deleteDirButton.textContent = 'Delete';
                         deleteDirButton.addEventListener('click', function () {
-                        deleteDirectory(directory.Prefix);
+                            deleteDirectory(directory.Prefix);
                         });
                         listItem.appendChild(deleteDirButton);
     
-                        listItem.addEventListener('click', function () {
+                        spanItem.addEventListener('click', function () {
                             const directoryName = directory.Prefix;
                             console.log("directoryName: ", directoryName)
                             toggleDirectoryContents(directoryName);
@@ -166,33 +239,40 @@
                     console.log("file key:", file.Key);
     
                     const filelistItem = document.createElement('li');
+                    filelistItem.classList.add('listitem');
                     filelistItem.textContent = file.Key;
                     
 
     
                     if (!file.Key.endsWith('/')) {
                         const downloadButton = document.createElement('button');
+                        downloadButton.classList.add('downloadBtn')
                         downloadButton.textContent = 'Download';
                         downloadButton.addEventListener('click', function () {
                             downloadFile(file.Key);
                         });
+                        downloadButton.classList.add('file-button');
                         filelistItem.appendChild(downloadButton);
     
                         if (isImageFile(file.Key)) {
                             const previewButton = document.createElement('button');
+                            previewButton.classList.add('previewBtn')
                             previewButton.textContent = 'Preview';
                             previewButton.addEventListener('click', function () {
                                 showPreview(file.Key);
                             });
+                            previewButton.classList.add('file-button')
                             filelistItem.appendChild(previewButton);
                         }
     
                         // Delete button for file
                         const deleteFileButton = document.createElement('button');
+                        deleteFileButton.classList.add('deletebtn')
                         deleteFileButton.textContent = 'Delete';
                         deleteFileButton.addEventListener('click', function () {
                             deleteObject(file.Key);
                         });
+                        deleteFileButton.classList.add('file-button');
                         filelistItem.appendChild(deleteFileButton);
     
                         // Check if it's not the root directory or it's the root directory but not the 0th index
@@ -287,11 +367,15 @@ function deleteDirectory(directoryKey) {
         objects.forEach(function (object) {
           deleteObjectWithoutConfirmation(object.Key);
         });
+
+        console.log("CurrentDirectory: ", currentDirectory)
         listObjects(currentDirectory);
       }
     });
   }
 }
+
+
 function deleteObjectWithoutConfirmation(key) {
     const params = {
         Bucket: bucketName,
